@@ -6,20 +6,20 @@ Game::Game() // Constructor
 	//Set position and adjacency matrix
 	
 	// position matrix contains the locations of each node
-	adjacencyMatrix.resize(posWidth);
+	positionMatrix.resize(posWidth);
 	for (int i = 0; i < posWidth; i++) {
-		adjacencyMatrix[i].resize(posHeight);
+		positionMatrix[i].resize(posHeight);
 	}
-	/*
+	
 
-	for (int i = 0; i < posWidth; i++) {
-		for (int j = 0; j < posHeight; j++) {
+	for (int i = 0; i < posWidth - 1; i++) {
+		for (int j = 0; j < posHeight - 1; j++) {
 			Position newPos = Position(20 * i + 20, 20 * j + 20);
 			positionMatrix[i][j] = newPos;
 		}
 	}
 
-	*/
+	
 
 
 	// Allocate adjacency matrix
@@ -42,16 +42,16 @@ Game::Game() // Constructor
 	}
 
 	// loop through all the available positions
-	for (int i = 0; i < posHeight; i++)
+	for (int i = 0; i < posHeight - 1; i++)
 	{
-		for (int j = 0; j < posWidth; j++)
+		for (int j = 0; j < posWidth - 1; j++)
 		{
 			int position = posWidth * i + j;			
 			
-			if (j < 0) adjacencyMatrix[position][position - 1] = 1;
-			if (j > posWidth) adjacencyMatrix[position][position + 1] = 1;
+			if (j > 0) adjacencyMatrix[position][position - 1] = 1;
+			if (j < posWidth - 1) adjacencyMatrix[position][position + 1] = 1;
 			if (i > 0) adjacencyMatrix[position][position - posWidth] = 1;
-			if (i < posHeight) adjacencyMatrix[position][position + posWidth] = 1;
+			if (i < posHeight - 1) adjacencyMatrix[position][position + posWidth] = 1;
 
 			//left column
 			if (j == 0) {
