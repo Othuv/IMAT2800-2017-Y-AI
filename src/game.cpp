@@ -3,6 +3,77 @@
 
 Game::Game() // Constructor
 {
+	//Set position and adjacency matrix
+	
+	// position matrix contains the locations of each node
+	/*
+	adjacencyMatrix.resize(posWidth);
+	for (int i = 0; i<posWidth; i++) {
+		adjacencyMatrix[i].resize(posHeight);
+	}
+
+	for (int i = 0; i<posWidth; i++) {
+		for (int j = 0; j<posHeight; j++) {
+			Position newPos = Position(20 * i + 20, 20 * j + 20);
+			positionMatrix[i][j] = newPos;
+		}
+	}
+	*/
+	// Allocate adjacency matrix
+	adjacencyMatrix.resize(nNodes);
+	for (int i = 0; i<nNodes; i++) {
+		adjacencyMatrix[i].resize(nNodes);
+	}
+
+	// Populate index lookup table
+	for (int i = 0; i<posWidth; i++) {
+		for (int j = 0; j<posHeight; j++) {
+			indexLookup[i][j] = j * posWidth + i;
+		}
+	}
+	// initialize all of the adjacency points to false
+	for (int i = 0; i<nNodes; i++) {
+		for (int j = 0; j<nNodes; j++) {
+			adjacencyMatrix[i][j] = 0;
+		}
+	}
+
+	// loop through all the available positions
+	for (int i = 0; i < posHeight; i++)
+	{
+		for (int j = 0; j < posWidth; j++)
+		{
+			int position = posWidth * i + j;			
+			adjacencyMatrix[i][j] = 0;
+			// allow travel between adjacent and diagonal locations
+			if (position == 0)
+			{
+				adjacencyMatrix[position][position + 1] = 1;
+				adjacencyMatrix[position][position + posWidth + 1] = 1;
+				adjacencyMatrix[position][position + posWidth] = 1;
+			}
+
+			if (position == posWidth - 1)
+			{
+				adjacencyMatrix[position][position - 1] = 1;
+				adjacencyMatrix[position][position - posWidth] = 1;
+				adjacencyMatrix[position][position - posWidth + 1] = 1;
+			}
+
+			if  (position == nNodes - posWidth - 1)
+			else if (i < 0)
+			for (int k = -1; k < 2; k++)
+			{ 
+				adjacencyMatrix[position][position + k] = 1;
+				adjacencyMatrix[position][position + posWidth + k] = 1;
+				adjacencyMatrix[position][position - posWidth + k] = 1;
+			}
+			// make sure the position doesn't think it's adjacent to itself
+			adjacencyMatrix[position][position] = 0;
+			
+		}
+	}
+
 	// Set Backgound
 	background.setSize(sf::Vector2f(780.0f,570.0f));
 	background.setFillColor(sf::Color(40,70,20));
@@ -165,7 +236,9 @@ void Game::play()// Play the game for one timestep
 	player.move();
 
 	// Check for collisions
+	//initialize collisions as false
 	bool collision = false;
+	//check if colliding with any obsacles
 	for (list<Obstacle>::iterator it = obstacles.begin(); it != obstacles.end(); ++it)
 	{
 		if(player.bb.collision(it->bb))
@@ -174,6 +247,8 @@ void Game::play()// Play the game for one timestep
 			break;
 		}
 	}
+
+	//check if colliding with blue buildings
 	for (list<Obstacle>::iterator it = blueBuildings.begin(); it != blueBuildings.end(); ++it)
 	{
 		if(player.bb.collision(it->bb))
@@ -182,6 +257,8 @@ void Game::play()// Play the game for one timestep
 			break;
 		}
 	}
+
+	//check if colliding with red buildings
 	for (list<Obstacle>::iterator it = redBuildings.begin(); it != redBuildings.end(); ++it)
 	{
 		if(player.bb.collision(it->bb))
@@ -190,8 +267,10 @@ void Game::play()// Play the game for one timestep
 			break;
 		}
 	}
+	//check if colliding with the npc
 	if(player.bb.collision(npc.bb)) collision = true;
 
+	//if so, push back to its previous position
 	if(collision)player.recallPos();
 
 
@@ -201,7 +280,7 @@ void Game::play()// Play the game for one timestep
 	npc.implementMove();
 	if(npc.isFiring()){fireShell(npc.firingPosition(), true);}
 
-	// Check for collisions
+	// Check for collisions, same as with the player
 	collision = false;
 	for (list<Obstacle>::iterator it = obstacles.begin(); it != obstacles.end(); ++it)
 	{
@@ -236,18 +315,25 @@ void Game::play()// Play the game for one timestep
 	}
 
 	// Check if AI Tank can see anything
+	// red buildings
     for (list<Obstacle>::iterator it = redBuildings.begin(); it != redBuildings.end(); ++it)
     {
 	  if(npc.canSee(it->bb)) npc.markBase(Position((it->bb.getX1() + it->bb.getX2()) / 2.0f, (it->bb.getY1() + it->bb.getY2()) / 2.0f));
     }
+
+	//blue buildings
     for (list<Obstacle>::iterator it = blueBuildings.begin(); it != blueBuildings.end(); ++it)
     {
 	  if(npc.canSee(it->bb)) npc.markTarget(Position((it->bb.getX1() + it->bb.getX2()) / 2.0f, (it->bb.getY1() + it->bb.getY2()) / 2.0f));
     }
+
+	//bullets
     for (list<Shell>::iterator it = shells.begin(); it != shells.end(); ++it)
     {
 	  if(npc.canSee(it->bb) && !it->isNpc()) npc.markShell(Position((it->bb.getX1() + it->bb.getX2()) / 2.0f, (it->bb.getY1() + it->bb.getY2()) / 2.0f));
     }
+
+	//player
 	if(npc.canSee(player.bb)) npc.markEnemy(Position((player.bb.getX1() + player.bb.getX2()) / 2.0f, (player.bb.getY1() + player.bb.getY2()) / 2.0f ));
 
 	// Move shells
@@ -362,6 +448,7 @@ void Game::play()// Play the game for one timestep
 		else it2++;
 	}
 
+	//have builings with object permanance
 	for (list<Obstacle>::iterator it = redBuildings.begin(); it != redBuildings.end(); ++it)
 	{
 		if(player.canSee(it->bb)) it->setVisible();
@@ -371,6 +458,8 @@ void Game::play()// Play the game for one timestep
 	{
 		if(player.canSee(it->bb)) it->setVisible();
 	}
+
+	//check if the player can see the enemy
 	if(player.canSee(npc.bb)) {npc.setVisible();}
 	else {npc.setInvisible();}
 
@@ -389,12 +478,12 @@ void Game::fireShell(Position fp, bool isNpc)
    bool tank = false;
    bool canFire = false;
    // Sort out visibility
-   if(isNpc)
+   if(isNpc)					//If the one trying to fire is the npc
    {
-		if(npc.canFire())
+		if(npc.canFire())		//check if it has ammo
 		{
-			npc.fireShell();
-			canFire = true;
+			npc.fireShell();	//fire 
+			canFire = true;		//set can fire to true
 		}
    }
    else
@@ -411,8 +500,9 @@ void Game::fireShell(Position fp, bool isNpc)
 
 void Game::draw(sf::RenderTarget &target, sf::RenderStates states) const// Draw the game
 {
+	//draw background
 	target.draw(background);
-
+	//draw the underlay for the ammo
 	target.draw(ammoArea);
 
 	// Draw shells
@@ -445,15 +535,18 @@ void Game::draw(sf::RenderTarget &target, sf::RenderStates states) const// Draw 
 	// Draw Player
 	target.draw(player);
 	
-	// Draw ammo
+	// Draw ammo count at the bottom
 	sf::RectangleShape ammo(sf::Vector2f(5,10));
 	ammo.setFillColor(sf::Color(0,0,255));
+
+	//for the player
 	for(int i=0;i<player.getNumberOfShells();i++)
 	{
 		ammo.setPosition((float)i*15+10, 585.f);
 		target.draw(ammo);
 	}
 
+	//for the npc
 	ammo.setFillColor(sf::Color(255,0,0));
 	for(int i=0;i<npc.getNumberOfShells();i++)
 	{
@@ -480,21 +573,27 @@ void Game::draw(sf::RenderTarget &target, sf::RenderStates states) const// Draw 
 	// Draw game over
 	if(gameOver())
 	{
+		//game over message
 		sprintf_s(msg,"GAME OVER", blueScore);
 		sf::Text drawingText(sf::String(msg),font,42);
 		drawingText.setPosition(300, 140);
 		target.draw(drawingText);
 		drawingText.setPosition(300, 240);
+
+		//if statements determining the winner
+		//red
 		if(redScore > blueScore)
 		{
 			sprintf_s(msg,"RED WINS!", blueScore);
 			drawingText.setString(sf::String(msg));
 		}
+		//blue 
 		if(redScore < blueScore)
 		{
 			sprintf_s(msg,"BLUE WINS!", blueScore);
 			drawingText.setString(sf::String(msg));
 		}
+		//draw
 		if(redScore == blueScore)
 		{
 			sprintf_s(msg,"MATCH DRAW!", blueScore);
@@ -504,28 +603,40 @@ void Game::draw(sf::RenderTarget &target, sf::RenderStates states) const// Draw 
 	}
 }
      
+
+//reactions to key presses
 void Game::keyPressed(sf::Keyboard::Key key)
 {
 	switch(key)
 	{
+		//tab will toggle debug
 	   case	sf::Keyboard::Tab :
 		   debugMode = !debugMode;
 		   player.toggleDebugMode();
 		   npc.toggleDebugMode();
 		   for (list<Shell>::iterator it = shells.begin(); it != shells.end(); ++it){it->toggleDebugMode();}
 		   break;
+		   //W: moves player forward
 	   case  sf::Keyboard::W : 
 		   player.goForward();
 		   break;
+
+		   //A: turns player to its left
 	   case  sf::Keyboard::A : 
 		   player.goLeft();
 		   break;
+
+		   //S: moves player backwards
 	   case  sf::Keyboard::S : 
 		   player.goBackward();
 		   break;
+
+		   //D: Turns player to its right
 	   case  sf::Keyboard::D : 
 		   player.goRight();
 		   break;
+
+		   //space will cause the player attempt to fire
 	   case	sf::Keyboard::Space :
 		   if(player.canFire())
 		   {
@@ -533,9 +644,13 @@ void Game::keyPressed(sf::Keyboard::Key key)
 			fireShell(player.firingPosition(), false);
 		   }
 		   break;
+			
+		   //Left: moves the turret left independant of the player
 	   case  sf::Keyboard::Left:
 		   player.turretGoLeft();
 		   break;
+
+		   //Right: moves the turret right independant of the player
 	   case  sf::Keyboard::Right:
 		   player.turretGoRight();
 		   break;
@@ -546,6 +661,7 @@ void Game::keyReleased(sf::Keyboard::Key key)
 {
 	switch(key)
 	{
+		//W, A, S, D: stops the player when the key is released
 	   case  sf::Keyboard::W : 
 		   player.stop();
 		   break;
@@ -558,6 +674,8 @@ void Game::keyReleased(sf::Keyboard::Key key)
 	   case  sf::Keyboard::D : 
 		   player.stop();
 		   break;
+
+		//Left, Right: stops moving the turret when the key is released
 	   case  sf::Keyboard::Left:
 		   player.stopTurret();
 		   break;
@@ -569,15 +687,18 @@ void Game::keyReleased(sf::Keyboard::Key key)
 
 bool Game::gameOver() const
 {
+	//ends the game if either side has no buildings left or neither party has ammo and there are no more shells on the screen
 	return numBlueBuildings() == 0 || numRedBuildings() == 0 || (!(player.hasAmmo() || npc.hasAmmo()) && shells.empty());
 }
 
 int Game::numBlueBuildings() const
 {
+	//returns the number of blue buildings
 	return blueBuildings.size();
 }
 
 int Game::numRedBuildings() const
 {
+	//returns the number of red buildings
 	return redBuildings.size();
 }

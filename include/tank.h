@@ -60,8 +60,8 @@ public:
 		float getY() const{return pos.getY();} //!< Position of the tank in y
 		int getNumberOfShells()const{return numberOfShells;} //!< Amount of ammo left
 		bool canSee(BoundingBox other) const; //!< Can this tank see the bounding box?
-		bool canFire() const {return numberOfShells > 0 && fireCounter == 0;} //!< Can this tnak fire
-		bool hasAmmo() const {return numberOfShells > 0;} //!< Does this tank have nay ammo left
+		bool canFire() const {return numberOfShells > 0 && fireCounter == 0;} //!< Can this tank fire
+		bool hasAmmo() const {return numberOfShells > 0;} //!< Does this tank have any ammo left
 		void toggleDebugMode(){debugMode = !debugMode;} //!< Toggle the debug mode
 };
 #endif

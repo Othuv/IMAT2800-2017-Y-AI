@@ -2,7 +2,7 @@
 #define DUMB_TANK_H
 
 #include "aitank.h"
-
+#include <list>
 
 class DumbTank : public AITank
 {
@@ -11,6 +11,8 @@ private:
 public:
     DumbTank();
     ~DumbTank();
+
+	//list<int> path;
 
 	void move();
 	void reset();

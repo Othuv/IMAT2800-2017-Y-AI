@@ -8,12 +8,23 @@
 #include "playerTank.h"
 #include "obstacle.h"
 #include "shell.h"
-
+#include "position.h"
 using namespace std;
 
 class Game : public sf::Drawable
 {
 	private:
+		
+		static const int posWidth = 39;
+		static const int posHeight = 28;
+		
+		int nNodes = posHeight * posWidth;
+	
+		int indexLookup[posWidth][posHeight];
+
+		vector<vector<bool>> adjacencyMatrix;	// adjacency matrix [nNodes] [nNodes]
+		vector<vector<Position>> positionMatrix; // position matrix of size [width] [height]
+
 		unsigned short lives; // number of lives left
 		bool debugMode; // toggle for debug mode
 		sf::RectangleShape background; // Background the playing area
