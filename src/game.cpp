@@ -6,19 +6,22 @@ Game::Game() // Constructor
 	//Set position and adjacency matrix
 	
 	// position matrix contains the locations of each node
-	/*
 	adjacencyMatrix.resize(posWidth);
-	for (int i = 0; i<posWidth; i++) {
+	for (int i = 0; i < posWidth; i++) {
 		adjacencyMatrix[i].resize(posHeight);
 	}
+	/*
 
-	for (int i = 0; i<posWidth; i++) {
-		for (int j = 0; j<posHeight; j++) {
+	for (int i = 0; i < posWidth; i++) {
+		for (int j = 0; j < posHeight; j++) {
 			Position newPos = Position(20 * i + 20, 20 * j + 20);
 			positionMatrix[i][j] = newPos;
 		}
 	}
+
 	*/
+
+
 	// Allocate adjacency matrix
 	adjacencyMatrix.resize(nNodes);
 	for (int i = 0; i<nNodes; i++) {
@@ -44,36 +47,33 @@ Game::Game() // Constructor
 		for (int j = 0; j < posWidth; j++)
 		{
 			int position = posWidth * i + j;			
-			adjacencyMatrix[i][j] = 0;
-			// allow travel between adjacent and diagonal locations
-			if (position == 0)
-			{
-				adjacencyMatrix[position][position + 1] = 1;
-				adjacencyMatrix[position][position + posWidth + 1] = 1;
-				adjacencyMatrix[position][position + posWidth] = 1;
-			}
-
-			if (position == posWidth - 1)
-			{
-				adjacencyMatrix[position][position - 1] = 1;
-				adjacencyMatrix[position][position - posWidth] = 1;
-				adjacencyMatrix[position][position - posWidth + 1] = 1;
-			}
-
-			if  (position == nNodes - posWidth - 1)
-			else if (i < 0)
-			for (int k = -1; k < 2; k++)
-			{ 
-				adjacencyMatrix[position][position + k] = 1;
-				adjacencyMatrix[position][position + posWidth + k] = 1;
-				adjacencyMatrix[position][position - posWidth + k] = 1;
-			}
-			// make sure the position doesn't think it's adjacent to itself
-			adjacencyMatrix[position][position] = 0;
 			
+			if (j < 0) adjacencyMatrix[position][position - 1] = 1;
+			if (j > posWidth) adjacencyMatrix[position][position + 1] = 1;
+			if (i > 0) adjacencyMatrix[position][position - posWidth] = 1;
+			if (i < posHeight) adjacencyMatrix[position][position + posWidth] = 1;
+
+			//left column
+			if (j == 0) {
+				adjacencyMatrix[position][position + (posWidth - 1)] = 1;
+			}
+
+			//right column
+			if (j == posWidth - 1) {
+				adjacencyMatrix[position][position - (posWidth - 1)] = 1;
+			}
+
+			//top row 
+			if (i == 0) {
+				adjacencyMatrix[position][(posHeight - 1) * posWidth + j] = 1;
+			}
+			//bottom row
+			if (i == posHeight - 1) {
+				adjacencyMatrix[position][j] = 1;
+			}
 		}
 	}
-
+	
 	// Set Backgound
 	background.setSize(sf::Vector2f(780.0f,570.0f));
 	background.setFillColor(sf::Color(40,70,20));
