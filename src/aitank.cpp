@@ -15,12 +15,47 @@ AITank::AITank() // Construtor
 	numberOfShells = 15;
 }
 
+void AITank::reset()
+{
 
+}
 
+void AITank::move()
+{
 
+}
 
+void AITank::collided()
+{
+	
+}
 
+void AITank::markTarget(Position p)
+{
 
+}
 
+void AITank::markEnemy(Position p)
+{
 
+}
 
+void AITank::markBase(Position p)
+{
+
+}
+
+void AITank::markShell(Position p)
+{
+
+}
+
+bool AITank::isFiring()
+{
+
+}
+
+void AITank::score(int thisScore, int enemyScore)
+{
+
+}
