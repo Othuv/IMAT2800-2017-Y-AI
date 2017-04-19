@@ -155,9 +155,9 @@ Game::Game() // Constructor
 	blueScore = 0;
 	}
 
-	Game::~Game(){}  // Destructor
+Game::~Game(){}  // Destructor
 
-	// Set a random Position which does not collide with anything
+// Set a random Position which does not collide with anything
 	void Game::resetNpc()
 	{
 	bool collision = true;
@@ -717,7 +717,7 @@ int Game::numRedBuildings() const
 
 int Game::getIndex(int x, int y)
 {
-	return indexLookup[x][y];
+	return indexLookup[x - 1 ][y - 1];
 }
 
 bool Game::reverseIndex(int index, int *x, int *y)
@@ -755,6 +755,104 @@ void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
 						adjacencyMatrix[k][currentIndex] = 0;
 						adjacencyMatrix[currentIndex][k] = 0;
 					}
+				}
+			}
+		}
+	}
+}
+
+int Game::getNearestIndex(Position currentPos)
+{
+	float currentMinDist = 1000;
+	int currentMinNode;
+	for (int i = 0; i < posHeight - 1; i++)
+	{
+		for (int j = 0; j < posWidth - 1; j++)
+		{
+			Position nodePos = Game::getPos(i, j);
+			
+			float diffX = (currentPos.getX() - nodePos.getX());
+			float diffY = (currentPos.getY() - nodePos.getY());
+			float currentDist = (diffY * diffY) + (diffX * diffX);
+
+			if (currentDist < currentMinDist) currentMinNode = getIndex(i, j);
+		}
+	}
+
+	return currentMinNode;
+
+}
+
+list<int> Game::planPathBFS(int goalNode)
+{
+	int currentNode = getNearestIndex(Position(npc.getX(), npc.getY()));
+
+	list<int> path; // Final path to be constructed
+	bool visited[nNodes]; // Has the node been visit
+	list<list<int>> nodeQueue; // Queue of nodes, implemented using a list
+
+	for (int i = 0; i<nNodes; i++) visited[i] = false;
+
+	path.push_back(currentNode);			    //add the initial node
+	nodeQueue.push_back(path);				    //add this path to the list
+	visited[currentNode] = true;			    //set the first node to visited
+	if (currentNode == goalNode) return path;   //if the first node was the goal node then return it	
+
+	while (!nodeQueue.empty())				    //while the node queue isn't empty	
+	{
+		path = nodeQueue.front();			    //Take the oldest stored path
+		nodeQueue.pop_front();				    //Take that path off of the queue
+		currentNode = path.back();			    //Set the current node to the last node on the path
+
+		for (int i = 0; i<nNodes; i++)		    //for every node
+		{
+			if (adjacencyMatrix[currentNode][i] && !visited[i])    //check if it's adjacent to the current one and hasn't yet been visited
+			{
+				path.push_back(i);				//add the node to the current path
+				nodeQueue.push_back(path);		//add this path to the list
+				visited[i] = true;				//and set the node to visited
+				if (i == goalNode)				//if the last element was the goal node
+				{
+					path.pop_front();			//take off the first element (don't know why but it's needed)
+					return path;				//return the final path
+				}
+				path.pop_back();				//take that node back off of the list
+			}
+		}
+	}
+}
+list<int> Game::planPathDFS(int goalNode)
+{
+	int currentNode = getNearestIndex(Position(npc.getX(), npc.getY()));
+
+	list<int> path; // Final path to be constructed
+	bool visited[nNodes]; // Has the node been visit
+	list<list<int>> nodeQueue; // Queue of nodes, implemented using a list
+
+	for (int i = 0; i<nNodes; i++) visited[i] = false;
+
+	path.push_back(currentNode);			    //add the initial node
+	nodeQueue.push_back(path);				    //add this path to the list
+	visited[currentNode] = true;			    //set the first node to visited
+	if (currentNode == goalNode) return path;   //if the first node was the goal node then return it	
+
+	while (!nodeQueue.empty())				    //while the node queue isn't empty	
+	{
+		path = nodeQueue.back();			    //Take the newest stored path
+		nodeQueue.pop_back();				    //Take that path off of the queue
+		currentNode = path.back();			    //Set the current node to the last node on the path
+
+		for (int i = 0; i<nNodes; i++)		    //for every node
+		{
+			if (adjacencyMatrix[currentNode][i] && !visited[i])    //check if it's adjacent to the current one and hasn't yet been visited
+			{
+				path.push_back(i);				//add the node to the current path
+				nodeQueue.push_back(path);		//add this path to the list
+				visited[i] = true;				//and set the node to visited
+				if (i == goalNode)
+				{
+					path.pop_front();
+					return path;	//if the node is the one we want to reach, return the current path
 				}
 			}
 		}

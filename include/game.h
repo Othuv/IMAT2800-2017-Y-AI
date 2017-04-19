@@ -18,7 +18,7 @@ class Game : public sf::Drawable
 		static const int posWidth = 39;
 		static const int posHeight = 28;
 		
-		int nNodes = posHeight * posWidth;
+		static const int nNodes = posHeight * posWidth;
 		
 		int indexLookup[posWidth][posHeight];
 
@@ -54,5 +54,8 @@ class Game : public sf::Drawable
 		bool reverseIndex(int index, int *x, int *y);
 		Position getPos(int x, int y);
 		void buildingAdj(int dx, int dy, int yVar, int xVar);
+		int getNearestIndex(Position currentPos);
+		list<int> planPathBFS(int goalNode);
+		list<int> planPathDFS(int goalNode);
 };
 #endif
