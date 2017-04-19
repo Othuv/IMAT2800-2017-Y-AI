@@ -19,7 +19,7 @@ class Game : public sf::Drawable
 		static const int posHeight = 28;
 		
 		int nNodes = posHeight * posWidth;
-	
+		
 		int indexLookup[posWidth][posHeight];
 
 		vector<vector<bool>> adjacencyMatrix;	// adjacency matrix [nNodes] [nNodes]
@@ -50,5 +50,9 @@ class Game : public sf::Drawable
 		bool gameOver() const; // Has the game finished?
 		int numBlueBuildings() const; // Count of blue buildings
 		int numRedBuildings() const; // Count of red buildings
+		int getIndex(int x, int y);
+		bool reverseIndex(int index, int *x, int *y);
+		Position getPos(int x, int y);
+		void buildingAdj(int dx, int dy, int yVar, int xVar);
 };
 #endif

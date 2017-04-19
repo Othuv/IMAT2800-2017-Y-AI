@@ -5,6 +5,7 @@ Game::Game() // Constructor
 {
 	//Set position and adjacency matrix
 	
+	/*
 	// position matrix contains the locations of each node
 	positionMatrix.resize(posWidth);
 	for (int i = 0; i < posWidth; i++) {
@@ -18,9 +19,13 @@ Game::Game() // Constructor
 			positionMatrix[i][j] = newPos;
 		}
 	}
-
+	*/
 	
-
+	for (int i = 0; i<posWidth; i++) {
+		for (int j = 0; j<posHeight; j++) {
+			indexLookup[i][j] = j * posWidth + i;
+		}
+	}
 
 	// Allocate adjacency matrix
 	adjacencyMatrix.resize(nNodes);
@@ -59,7 +64,7 @@ Game::Game() // Constructor
 			}
 
 			//right column
-			if (j == posWidth - 1) {
+			else if (j == posWidth - 1) {
 				adjacencyMatrix[position][position - (posWidth - 1)] = 1;
 			}
 
@@ -68,7 +73,7 @@ Game::Game() // Constructor
 				adjacencyMatrix[position][(posHeight - 1) * posWidth + j] = 1;
 			}
 			//bottom row
-			if (i == posHeight - 1) {
+			else if (i == posHeight - 1) {
 				adjacencyMatrix[position][j] = 1;
 			}
 		}
@@ -107,6 +112,8 @@ Game::Game() // Constructor
 	redBuildings.push_back(Obstacle(dx,dy+40.f,dx+20.f,dy+60.f,sf::Color(170,60,60)));
 	redBuildings.push_back(Obstacle(dx+20.f,dy+40.f,dx+40.f,dy+60.f,sf::Color(170,40,40)));
 
+	Game::buildingAdj(dx, dy, 60, 40);
+
 	// Bottom right
 	dx = (float) (rand() % 340 + 400);
 	dy = (float) (rand() % 200 + 280);
@@ -115,6 +122,8 @@ Game::Game() // Constructor
 	redBuildings.push_back(Obstacle(dx+20.f,dy,dx+40.f,dy+20.f,sf::Color(170,40,40)));
 	redBuildings.push_back(Obstacle(dx,dy+20.f,dx+20.f,dy+40.f,sf::Color(170,40,40)));
 	redBuildings.push_back(Obstacle(dx+20.f,dy+20.f,dx+40.f,dy+40.f,sf::Color(170,60,60)));
+
+	Game::buildingAdj(dx, dy, 40, 40);
 
 	// Top left
 	dx = (float) (rand() % 340 + 10);
@@ -125,6 +134,7 @@ Game::Game() // Constructor
 	blueBuildings.push_back(Obstacle(dx,dy+20,dx+20,dy+40,sf::Color(40,40,170)));
 	blueBuildings.push_back(Obstacle(dx+20,dy+20,dx+40,dy+40,sf::Color(60,60,170)));
 
+	Game::buildingAdj(dx, dy, 40, 40);
 	// Bottom left
 	dx = (float) (rand() % 340 + 10);
 	dy = (float) (rand() % 200 + 280);
@@ -135,6 +145,8 @@ Game::Game() // Constructor
 	blueBuildings.push_back(Obstacle(dx+20,dy+20,dx+40,dy+40,sf::Color(60,60,170)));
 	blueBuildings.push_back(Obstacle(dx,dy+40,dx+20,dy+60,sf::Color(60,60,170)));
 	blueBuildings.push_back(Obstacle(dx+20,dy+40,dx+40,dy+60,sf::Color(40,40,170)));
+
+	Game::buildingAdj(dx, dy, 60, 40);
 
 	resetNpc();
 	resetPlayer();
@@ -701,4 +713,50 @@ int Game::numRedBuildings() const
 {
 	//returns the number of red buildings
 	return redBuildings.size();
+}
+
+int Game::getIndex(int x, int y)
+{
+	return indexLookup[x][y];
+}
+
+bool Game::reverseIndex(int index, int *x, int *y)
+{
+	if (index > nNodes) { return false; } //if the index is outside the number of nodes return false 
+
+	else //otherwise calculate the x y coords using this
+	{
+		*x = index % posWidth;
+		*y = index / posWidth;
+		return true;
+	}
+}
+
+Position Game::getPos(int x, int y)
+{
+	return Position(20 * x + 20, 20 * y + 20); //calculate the position of a set of coords
+}
+
+void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
+{
+	for (int i = 0; i < posHeight - 1; i++)
+	{
+		for (int j = 0; j < posWidth - 1; j++)
+		{
+			Position currentPos = Game::getPos(i, j);
+			int currentIndex = getIndex(currentPos.getX(), currentPos.getY());
+			if (currentPos.getX() > dx && currentPos.getX() < dx + xVar)
+			{
+				if (currentPos.getY() > dy && currentPos.getY() < dx + yVar)
+				{
+					for (int k = 0; k < nNodes - 1; k++)
+					{
+
+						adjacencyMatrix[k][currentIndex] = 0;
+						adjacencyMatrix[currentIndex][k] = 0;
+					}
+				}
+			}
+		}
+	}
 }
