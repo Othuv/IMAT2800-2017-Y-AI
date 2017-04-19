@@ -15,15 +15,12 @@ class Game : public sf::Drawable
 {
 	private:
 		
-		static const int posWidth = 39;
-		static const int posHeight = 28;
-		
-		static const int nNodes = posHeight * posWidth;
-		
-		int indexLookup[posWidth][posHeight];
-
-		vector<vector<bool>> adjacencyMatrix;	// adjacency matrix [nNodes] [nNodes]
-		vector<vector<Position>> positionMatrix; // position matrix of size [width] [height]
+		static const int posWidth = 38;						// number of x positions the tank can travel 
+		static const int posHeight = 27;					// number of y positions the tank can travel
+		static const int nNodes = posHeight * posWidth;		// total number of positions the tank can be
+		int indexLookup[posWidth][posHeight];				// contains the index value bassed on the x, y coords
+		vector<vector<bool>> adjacencyMatrix;				// adjacency matrix [nNodes] [nNodes]
+//		vector<vector<Position>> positionMatrix;			// position matrix of size [width] [height], scraped for a calculation
 
 		unsigned short lives; // number of lives left
 		bool debugMode; // toggle for debug mode
@@ -50,12 +47,15 @@ class Game : public sf::Drawable
 		bool gameOver() const; // Has the game finished?
 		int numBlueBuildings() const; // Count of blue buildings
 		int numRedBuildings() const; // Count of red buildings
-		int getIndex(int x, int y);
-		bool reverseIndex(int index, int *x, int *y);
-		Position getPos(int x, int y);
-		void buildingAdj(int dx, int dy, int yVar, int xVar);
-		int getNearestIndex(Position currentPos);
-		list<int> planPathBFS(int goalNode);
-		list<int> planPathDFS(int goalNode);
+
+		//The following are functions that have been added to the game to facilitate pathing
+		int index(int x, int y);								//return the index for a pair of coords
+		bool reverseIndex(int index, int *x, int *y);			//return the coords for an index
+		Position getPos(int x, int y);							//calculate an ingame position from a pair of coords
+		Position getPosFromIndex(int index);					//calculates an ingame position based on the index value
+		void buildingAdj(int dx, int dy, int yVar, int xVar);	//check if the points on the adjacency matrix collide with a box
+		int getNearestIndex(Position currentPos);				//get the closest node to the current position
+		list<int> planPathBFS(int goalNode);					//pathing based on a BFS system
+		list<int> planPathDFS(int goalNode);					//pathing based on a DFS system
 };
 #endif

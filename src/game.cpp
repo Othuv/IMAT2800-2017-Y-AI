@@ -20,12 +20,6 @@ Game::Game() // Constructor
 		}
 	}
 	*/
-	
-	for (int i = 0; i<posWidth; i++) {
-		for (int j = 0; j<posHeight; j++) {
-			indexLookup[i][j] = j * posWidth + i;
-		}
-	}
 
 	// Allocate adjacency matrix
 	adjacencyMatrix.resize(nNodes);
@@ -51,31 +45,75 @@ Game::Game() // Constructor
 	{
 		for (int j = 0; j < posWidth - 1; j++)
 		{
+			//calculate current position
 			int position = posWidth * i + j;			
 			
+			// adjacent squares
+			//left is fine if not on far left
 			if (j > 0) adjacencyMatrix[position][position - 1] = 1;
+
+			//right is fine if not on far right
 			if (j < posWidth - 1) adjacencyMatrix[position][position + 1] = 1;
+
+			//up is fine if not on top row
 			if (i > 0) adjacencyMatrix[position][position - posWidth] = 1;
+
+			//down is fine is not on bottom row
 			if (i < posHeight - 1) adjacencyMatrix[position][position + posWidth] = 1;
+			
+
+			// handling for diagonals
+			//top row 
+			if (i == 0) {
+				if (j == 0)					//top left corner
+				{
+					adjacencyMatrix[position][position + posWidth + 1] = 1; // down and right is true
+				}
+				else if (j == posWidth - 1) // top right corner
+				{
+					adjacencyMatrix[position][position + posWidth - 1] = 1;	//down and left is true
+				}
+				else                        // anything else on top row
+				{
+					adjacencyMatrix[position][position + posWidth + 1] = 1;
+					adjacencyMatrix[position][position + posWidth - 1] = 1;
+				}
+			}
+
+			//bottom row
+			else if (i == posHeight - 1) {
+				if (j == 0)						//bottom left corner
+				{
+					adjacencyMatrix[position][position - posWidth + 1] = 1; //up and right is true
+				}
+				else if (j == posWidth - 1)		//bottom right corner
+				{
+					adjacencyMatrix[position][position - posWidth - 1] = 1;	//up and left is true
+				}
+				else                            //anything else on the bottom row, both are true
+				{
+					adjacencyMatrix[position][position - posWidth + 1] = 1;	
+					adjacencyMatrix[position][position - posWidth - 1] = 1;
+				}
+			}
 
 			//left column
 			if (j == 0) {
-				adjacencyMatrix[position][position + (posWidth - 1)] = 1;
+				if (i != 0 && i != posHeight - 1)	//not a corner (handled above)
+				{
+					adjacencyMatrix[position][position - posWidth + 1] = 1;	//up and right
+					adjacencyMatrix[position][position + posWidth + 1] = 1;	//down and right
+				}
 			}
 
 			//right column
 			else if (j == posWidth - 1) {
-				adjacencyMatrix[position][position - (posWidth - 1)] = 1;
-			}
-
-			//top row 
-			if (i == 0) {
-				adjacencyMatrix[position][(posHeight - 1) * posWidth + j] = 1;
-			}
-			//bottom row
-			else if (i == posHeight - 1) {
-				adjacencyMatrix[position][j] = 1;
-			}
+				if (i != 0 && i != posHeight - 1)	//not a corner (handled above)
+				{
+					adjacencyMatrix[position][position - posWidth - 1] = 1;	//up and left 
+					adjacencyMatrix[position][position + posWidth - 1] = 1;	//down and left
+				}
+			}	
 		}
 	}
 	
@@ -715,7 +753,7 @@ int Game::numRedBuildings() const
 	return redBuildings.size();
 }
 
-int Game::getIndex(int x, int y)
+int Game::index(int x, int y)
 {
 	return indexLookup[x - 1 ][y - 1];
 }
@@ -737,6 +775,14 @@ Position Game::getPos(int x, int y)
 	return Position(20 * x + 20, 20 * y + 20); //calculate the position of a set of coords
 }
 
+Position Game::getPosFromIndex(int index)
+{
+	int x = index % posWidth;
+	int y = index / posWidth;
+
+	return Position(20 * x + 20, 20 * y + 20);
+}
+
 void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
 {
 	for (int i = 0; i < posHeight - 1; i++)
@@ -744,7 +790,7 @@ void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
 		for (int j = 0; j < posWidth - 1; j++)
 		{
 			Position currentPos = Game::getPos(i, j);
-			int currentIndex = getIndex(currentPos.getX(), currentPos.getY());
+			int currentIndex = index(i, j);
 			if (currentPos.getX() > dx && currentPos.getX() < dx + xVar)
 			{
 				if (currentPos.getY() > dy && currentPos.getY() < dx + yVar)
@@ -775,7 +821,7 @@ int Game::getNearestIndex(Position currentPos)
 			float diffY = (currentPos.getY() - nodePos.getY());
 			float currentDist = (diffY * diffY) + (diffX * diffX);
 
-			if (currentDist < currentMinDist) currentMinNode = getIndex(i, j);
+			if (currentDist < currentMinDist) currentMinNode = index(i, j);
 		}
 	}
 
@@ -821,6 +867,7 @@ list<int> Game::planPathBFS(int goalNode)
 		}
 	}
 }
+
 list<int> Game::planPathDFS(int goalNode)
 {
 	int currentNode = getNearestIndex(Position(npc.getX(), npc.getY()));
