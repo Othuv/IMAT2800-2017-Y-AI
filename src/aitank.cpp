@@ -1,6 +1,6 @@
 #include "AITank.h"
 
-AITank::AITank() // Construtor
+AITank::AITank() // Constructor
 {
 	bodyTex.loadFromFile("assets\\redTank.png");
 	body.setTexture(bodyTex);
@@ -13,4 +13,49 @@ AITank::AITank() // Construtor
 	turret.setScale(0.2f,0.2f);
 	
 	numberOfShells = 15;
+}
+
+void AITank::reset()
+{
+
+}
+
+void AITank::move()
+{
+
+}
+
+void AITank::collided()
+{
+
+}
+
+void AITank::markTarget(Position p)
+{
+
+}
+
+void AITank::markBase(Position p)
+{
+
+}
+
+void AITank::markEnemy(Position p)
+{
+
+}
+
+void AITank::markShell(Position p)
+{
+
+}
+
+bool AITank::isFiring()
+{
+
+}
+
+void AITank::score(int thisScore, int enemyScore)
+{
+
 }
