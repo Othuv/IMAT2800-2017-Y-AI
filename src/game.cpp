@@ -130,7 +130,7 @@ Game::Game() // Constructor
 	srand ( (int) time(NULL) );
 
 	// Set debug mode to off
-	debugMode = false;
+	debugMode = true;
 
 	// Borders
 	obstacles.push_back(Obstacle(0.f,0.f,10.f,580.f,sf::Color(100,100,100)));
@@ -323,9 +323,11 @@ void Game::play()// Play the game for one timestep
 	//if so, push back to its previous position
 	if(collision)player.recallPos();
 
+	aiPath.insert(aiPath.begin(), Position(780, 300));
 
 	// Move AI tank
 	npc.markPos();
+	npc.setPath(aiPath);
 	npc.move();
 	npc.implementMove();
 	if(npc.isFiring()){fireShell(npc.firingPosition(), true);}

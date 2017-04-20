@@ -26,6 +26,7 @@ class Game : public sf::Drawable
 		bool debugMode; // toggle for debug mode
 		sf::RectangleShape background; // Background the playing area
 		sf::RectangleShape ammoArea; // Background where the ammo is drawn
+		list<Position> aiPath;
 		list<Obstacle> obstacles; // Obstacles in the tanks way
 		list<Obstacle> blueBuildings; // Collection of blue buildings
 		list<Obstacle> redBuildings; // Collection of red buildings
@@ -40,7 +41,7 @@ class Game : public sf::Drawable
 		~Game(); // Destructor
 		virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const; // Draw the game
 		void play(); // Play the game for one timestep
-		DumbTank npc; // Red tank
+		AITank npc = AITank(); // Red tank
 		PlayerTank player; // Blue tank
 		void keyPressed(sf::Keyboard::Key key); // function for processing input
 		void keyReleased(sf::Keyboard::Key key); // function for processing input

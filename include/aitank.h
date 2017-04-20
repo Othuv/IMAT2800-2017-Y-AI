@@ -5,6 +5,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+#include <list>
 #include "tank.h"
 #include "position.h"
 
@@ -15,13 +16,13 @@ protected:
 	bool visible;
 public:
 	AITank(); //!< Empty construtor
-
+	std::list<Position> path;
 	void setVisible(){visible = true;} //!< Make the AI tank visible to the player
 	void setInvisible(){visible = false;} //!< Make the AI tank invisible to the player
 	bool isVisible()const {return visible;} //!< Is the tank visiable to the player?
 
 	// FSM public methods, set states and variable
-	virtual void reset(); //!< Reset any variables you need to when the tank has been shot
+	void reset(); //!< Reset any variables you need to when the tank has been shot
 	virtual void move(); //!< Move the tank
 	virtual void collided(); //!< Called by the game object when the tank has collided
 	virtual void markTarget(Position p /** \param Position of the acquired target */); //!< Called by the game object when a target (enemy building) comes within the tanks visible range
@@ -30,6 +31,7 @@ public:
 	virtual void markShell(Position p /** \param Position of an enemy shell */); //!< Called by the game object when enemy shell comes within the tanks visible range
 	virtual bool isFiring(); //!< Called by the game object each frame.  When this function returns true (and ammo is availbe and loaded) the tank will fire a shell
 	virtual void score(int thisScore,int enemyScore);
+	void setPath(std::list<Position> nP);
 };
 
 #endif

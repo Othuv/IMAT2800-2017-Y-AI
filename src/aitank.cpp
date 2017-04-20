@@ -22,7 +22,36 @@ void AITank::reset()
 
 void AITank::move()
 {
-
+	stop();
+	//right = false;
+	//left = false;
+	//backward = false;
+	//forward = false;
+	float nTH;
+	if (path.size() != 0)
+	{
+		
+		nTH = atan2f((pos.getY()-path.front().getY()), (pos.getX() - path.front().getX()))*360;
+		std::cout << nTH << std::endl;
+		if (nTH < 0)
+		{
+			nTH += 360;
+		}
+		if (pos.getTh() != nTH)
+		{
+			goLeft();
+		}
+		if (pos.getTh() <= nTH + 20 && pos.getTh() >= nTH - 20)
+		{
+			stop();
+			goForward();
+		}
+		if (path.front().getX() == pos.getX() && path.front().getY() == pos.getY())
+		{
+			stop();
+			path.pop_front();
+		}
+	}
 }
 
 void AITank::collided()
@@ -52,10 +81,19 @@ void AITank::markShell(Position p)
 
 bool AITank::isFiring()
 {
-
+	return true;
 }
 
 void AITank::score(int thisScore, int enemyScore)
 {
 
+}
+
+void AITank::setPath(std::list<Position> nP)
+{
+	for (int i = 0; i < nP.size(); i++)
+	{
+		path.insert(path.end(), nP.front());
+		nP.pop_front();
+	}
 }
