@@ -31,22 +31,28 @@ void AITank::move()
 	if (path.size() != 0)
 	{
 		
-		nTH = atan2f((pos.getY()-path.front().getY()), (pos.getX() - path.front().getX()))*360;
-		std::cout << nTH << std::endl;
-		if (nTH < 0)
+		nTH = RAD2DEG(atan2f((pos.getY()-path.front().getY()), (pos.getX() - path.front().getX())))+180;
+
+		while (nTH < 0.0f)
 		{
 			nTH += 360;
 		}
+		while (nTH > 360.0f)
+		{
+			nTH -= 360;
+		}
+		std::cout << nTH << ' ' << pos.getTh() << std::endl;
 		if (pos.getTh() != nTH)
 		{
+			stop();
 			goLeft();
 		}
-		if (pos.getTh() <= nTH + 20 && pos.getTh() >= nTH - 20)
+		if (pos.getTh() <= nTH + 1.5f && pos.getTh() >= nTH - 1.5f)
 		{
 			stop();
 			goForward();
 		}
-		if (path.front().getX() == pos.getX() && path.front().getY() == pos.getY())
+		if (path.front().getX() <= (pos.getX() +1.5f) && path.front().getY() <= (pos.getY() +1.5f) && path.front().getX() >= (pos.getX() - 1.5f) && path.front().getY() >= (pos.getY() - 1.5f))
 		{
 			stop();
 			path.pop_front();

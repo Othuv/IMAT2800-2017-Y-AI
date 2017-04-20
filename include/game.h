@@ -27,6 +27,7 @@ class Game : public sf::Drawable
 		sf::RectangleShape background; // Background the playing area
 		sf::RectangleShape ammoArea; // Background where the ammo is drawn
 		list<Position> aiPath;
+		list<int> test;
 		list<Obstacle> obstacles; // Obstacles in the tanks way
 		list<Obstacle> blueBuildings; // Collection of blue buildings
 		list<Obstacle> redBuildings; // Collection of red buildings

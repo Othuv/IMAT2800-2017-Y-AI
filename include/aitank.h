@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <list>
+#include <math.h>
 #include "tank.h"
 #include "position.h"
 

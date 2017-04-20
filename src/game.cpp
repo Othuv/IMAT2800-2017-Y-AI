@@ -323,7 +323,13 @@ void Game::play()// Play the game for one timestep
 	//if so, push back to its previous position
 	if(collision)player.recallPos();
 
-	aiPath.insert(aiPath.begin(), Position(780, 300));
+	test = planPathBFS(20);
+	
+	for (int i = 0; i < test.size(); i++)
+	{
+		aiPath.insert(aiPath.end(), getPosFromIndex(test.front()));
+		test.pop_front();
+	}
 
 	// Move AI tank
 	npc.markPos();
@@ -812,7 +818,7 @@ void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
 int Game::getNearestIndex(Position currentPos)
 {
 	float currentMinDist = 1000;
-	int currentMinNode;
+	int currentMinNode = 0;
 	for (int i = 0; i < posHeight - 1; i++)
 	{
 		for (int j = 0; j < posWidth - 1; j++)
@@ -826,9 +832,7 @@ int Game::getNearestIndex(Position currentPos)
 			if (currentDist < currentMinDist) currentMinNode = index(i, j);
 		}
 	}
-
 	return currentMinNode;
-
 }
 
 list<int> Game::planPathBFS(int goalNode)
