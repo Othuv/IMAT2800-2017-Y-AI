@@ -40,6 +40,9 @@ class Game : public sf::Drawable
     public:
 		Game(); // Constructor
 		~Game(); // Destructor
+		int makeInitialGoal();
+		int makeRandomGoal();
+		int makeEnemyTerritoryGoal();
 		virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const; // Draw the game
 		void play(); // Play the game for one timestep
 		AITank npc = AITank(); // Red tank

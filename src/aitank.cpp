@@ -23,10 +23,7 @@ void AITank::reset()
 void AITank::move()
 {
 	stop();
-	//right = false;
-	//left = false;
-	//backward = false;
-	//forward = false;
+	aimed = false;
 	float nTH;
 	float nTR = 0;
 	if (path.size() != 0)
@@ -69,9 +66,10 @@ void AITank::move()
 	}
 	nTR = RAD2DEG(atan2f(pos.getY() - target.getY(), pos.getX() - target.getX())) + 180;
 
-	if (turretTh <= nTR + 1.25f && turretTh >= nTR - 1.25f)
+	if (turretTh < nTR + 1.25f && turretTh > nTR - 1.25f && target.getX() != 0)
 	{
 		stopTurret();
+		aimed = true;
 	}
 	else if (turretTh < nTR)
 	{
@@ -98,7 +96,6 @@ void AITank::markTarget(Position p)
 
 void AITank::markBase(Position p)
 {
-	target = p;
 }
 
 void AITank::markEnemy(Position p)
@@ -112,7 +109,7 @@ void AITank::markShell(Position p)
 
 bool AITank::isFiring()
 {
-	return true;
+	return aimed;
 }
 
 void AITank::score(int thisScore, int enemyScore)
@@ -127,3 +124,4 @@ void AITank::setPath(std::list<Position> nP)
 		nP.pop_front();
 	}
 }
+

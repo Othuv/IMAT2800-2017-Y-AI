@@ -17,6 +17,7 @@ protected:
 	bool visible;
 	int iSLogic = 0;
 public:
+	bool aimed = false;
 	AITank(); //!< Empty construtor
 	std::list<Position> path;
 	Position target = Position(0,0);

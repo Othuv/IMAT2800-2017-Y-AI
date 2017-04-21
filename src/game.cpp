@@ -193,7 +193,7 @@ Game::Game() // Constructor
 	redScore = 0;
 	blueScore = 0;
 
-	test = planPathDFS(200);
+	test = planPathDFS(makeInitialGoal());
 	for (int i = 0; i < test.size(); i++)
 	{
 		aiPath.insert(aiPath.end(), getPosFromIndex(test.front()));
@@ -781,7 +781,7 @@ bool Game::reverseIndex(int index, int *x, int *y)
 
 Position Game::getPos(int x, int y)
 {
-	return Position(20 * x + 20, 20 * y + 20); //calculate the position of a set of coords
+	return Position(20 * x + 40, 20 * y + 40); //calculate the position of a set of coords
 }
 
 Position Game::getPosFromIndex(int index)
@@ -789,7 +789,7 @@ Position Game::getPosFromIndex(int index)
 	int x = index % posWidth;
 	int y = index / posWidth;
 
-	return Position(20 * x + 20, 20 * y + 20);
+	return Position(20 * x + 40, 20 * y + 40);
 }
 
 void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
@@ -911,4 +911,28 @@ list<int> Game::planPathDFS(int goalNode)
 			}
 		}
 	}
+}
+
+int Game::makeInitialGoal()
+{
+	int dx = (float)(rand() % 10);
+	int dy = (float)(rand() % 30);
+
+	return index(dx, dy);
+}
+
+int Game::makeRandomGoal()
+{
+	int dx = (float)(rand() % posWidth);
+	int dy = (float)(rand() % posHeight);
+
+	return index(dx, dy);
+}
+
+int Game::makeEnemyTerritoryGoal()
+{
+	int dx = (float)(rand() % posWidth / 2);
+	int dy = (float)(rand() % posHeight);
+
+	return index(dx, dy);
 }
