@@ -1059,8 +1059,8 @@ int Game::makeInitialGoal()						//Makes a goal node in the upper left of the ma
 
 int Game::makeRandomGoal()						//Makes an entirely random goal node
 {
-	int dx = (float)(rand() % posWidth)+1;		//Randomizes between 1 and posWidth
-	int dy = (float)(rand() % posHeight)+1;		//Randomizes between 1 and posHeight
+	int dx = (float)(rand() % posWidth-1)+1;		//Randomizes between 1 and posWidth
+	int dy = (float)(rand() % posHeight-1)+1;		//Randomizes between 1 and posHeight
 
 	return index(dx, dy);						//Calculate the index of the point
 }
@@ -1068,7 +1068,7 @@ int Game::makeRandomGoal()						//Makes an entirely random goal node
 int Game::makeEnemyTerritoryGoal()				//Makes a goal node in enemy territory
 {
 	int dx = (float)(rand() % posWidth / 2)+1;	//Randomizes between 1 and half of the posWidth
-	int dy = (float)(rand() % posHeight)+1;		//Randomizes between 1 and posHeight
+	int dy = (float)(rand() % posHeight-1)+1;		//Randomizes between 1 and posHeight
 
 	return index(dx, dy);						//Calculate the index of the point
 }
