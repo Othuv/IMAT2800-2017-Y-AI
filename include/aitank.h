@@ -15,9 +15,11 @@ class AITank : public Tank
 {
 protected:
 	bool visible;
+	int iSLogic = 0;
 public:
 	AITank(); //!< Empty construtor
 	std::list<Position> path;
+	Position target = Position(0,0);
 	void setVisible(){visible = true;} //!< Make the AI tank visible to the player
 	void setInvisible(){visible = false;} //!< Make the AI tank invisible to the player
 	bool isVisible()const {return visible;} //!< Is the tank visiable to the player?

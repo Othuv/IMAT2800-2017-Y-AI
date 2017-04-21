@@ -3,6 +3,7 @@
 
 Game::Game() // Constructor
 {
+
 	//Set position and adjacency matrix
 	
 	/*
@@ -191,6 +192,14 @@ Game::Game() // Constructor
 
 	redScore = 0;
 	blueScore = 0;
+
+	test = planPathDFS(200);
+	for (int i = 0; i < test.size(); i++)
+	{
+		aiPath.insert(aiPath.end(), getPosFromIndex(test.front()));
+		test.pop_front();
+	}
+	npc.setPath(aiPath);
 	}
 
 Game::~Game(){}  // Destructor
@@ -323,17 +332,9 @@ void Game::play()// Play the game for one timestep
 	//if so, push back to its previous position
 	if(collision)player.recallPos();
 
-	test = planPathBFS(20);
-	
-	for (int i = 0; i < test.size(); i++)
-	{
-		aiPath.insert(aiPath.end(), getPosFromIndex(test.front()));
-		test.pop_front();
-	}
-
 	// Move AI tank
 	npc.markPos();
-	npc.setPath(aiPath);
+
 	npc.move();
 	npc.implementMove();
 	if(npc.isFiring()){fireShell(npc.firingPosition(), true);}

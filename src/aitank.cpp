@@ -28,6 +28,7 @@ void AITank::move()
 	//backward = false;
 	//forward = false;
 	float nTH;
+	float nTR = 0;
 	if (path.size() != 0)
 	{
 		
@@ -41,16 +42,24 @@ void AITank::move()
 		{
 			nTH -= 360;
 		}
-		std::cout << nTH << ' ' << pos.getTh() << std::endl;
-		if (pos.getTh() != nTH)
-		{
-			stop();
-			goLeft();
-		}
+
 		if (pos.getTh() <= nTH + 1.5f && pos.getTh() >= nTH - 1.5f)
 		{
 			stop();
 			goForward();
+		}
+		else
+		{
+			if (pos.getTh() > nTH)
+			{
+				stop();
+				goLeft();
+			}
+			if (pos.getTh() < nTH)
+			{
+				stop();
+				goRight();
+			}
 		}
 		if (path.front().getX() <= (pos.getX() +1.5f) && path.front().getY() <= (pos.getY() +1.5f) && path.front().getX() >= (pos.getX() - 1.5f) && path.front().getY() >= (pos.getY() - 1.5f))
 		{
@@ -58,31 +67,47 @@ void AITank::move()
 			path.pop_front();
 		}
 	}
+	nTR = RAD2DEG(atan2f(pos.getY() - target.getY(), pos.getX() - target.getX())) + 180;
+
+	if (turretTh <= nTR + 1.25f && turretTh >= nTR - 1.25f)
+	{
+		stopTurret();
+	}
+	else if (turretTh < nTR)
+	{
+		turretGoRight();
+	}
+	else if (turretTh > nTR)
+	{
+		turretGoLeft();
+	}
+
+	std::cout << "nTH: " << nTH << " nTR: " << nTR << std::endl << "tankH: " << pos.getTh() << " TurretH: " << turretTh << std::endl;
 }
 
 void AITank::collided()
 {
-
+	stop();
+	goBackward();
 }
 
 void AITank::markTarget(Position p)
 {
-
+	target = p;
 }
 
 void AITank::markBase(Position p)
 {
-
+	target = p;
 }
 
 void AITank::markEnemy(Position p)
 {
-
+	target = p;
 }
 
 void AITank::markShell(Position p)
 {
-
 }
 
 bool AITank::isFiring()
@@ -92,7 +117,6 @@ bool AITank::isFiring()
 
 void AITank::score(int thisScore, int enemyScore)
 {
-
 }
 
 void AITank::setPath(std::list<Position> nP)
