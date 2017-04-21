@@ -131,7 +131,7 @@ Game::Game() // Constructor
 	srand ( (int) time(NULL) );
 
 	// Set debug mode to off
-	debugMode = true;
+	debugMode = false;
 
 	// Borders
 	obstacles.push_back(Obstacle(0.f,0.f,10.f,580.f,sf::Color(100,100,100)));

@@ -20,6 +20,7 @@ void AITank::reset()
 	stop();
 	stopTurret();
 	turretGoLeft();
+	requestingPath = true;
 }
 
 void AITank::move()
@@ -133,6 +134,11 @@ void AITank::score(int thisScore, int enemyScore)
 
 void AITank::setPath(std::list<Position> nP)
 {//copies new path (nP) to the internal path storage.
+	for (int i = 0; i < path.size(); i++)
+	{
+		path.pop_front();
+	}
+
 	for (int i = 0; i < nP.size(); i++)
 	{
 		path.insert(path.end(), nP.front());
