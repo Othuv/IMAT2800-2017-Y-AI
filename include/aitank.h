@@ -16,8 +16,12 @@ class AITank : public Tank
 protected:
 	bool visible;
 	int iSLogic = 0;
+	bool requestingPath = false;
 public:
+	bool returnRequest();
+	void requestAcknowledged();
 	bool aimed = false;
+	bool fired = true;
 	AITank(); //!< Empty construtor
 	std::list<Position> path;
 	Position target = Position(0,0);

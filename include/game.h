@@ -27,7 +27,7 @@ class Game : public sf::Drawable
 		sf::RectangleShape background; // Background the playing area
 		sf::RectangleShape ammoArea; // Background where the ammo is drawn
 		list<Position> aiPath;
-		list<int> test;
+		list<int> lIPath;
 		list<Obstacle> obstacles; // Obstacles in the tanks way
 		list<Obstacle> blueBuildings; // Collection of blue buildings
 		list<Obstacle> redBuildings; // Collection of red buildings
@@ -40,6 +40,7 @@ class Game : public sf::Drawable
     public:
 		Game(); // Constructor
 		~Game(); // Destructor
+		int chooseGoal();
 		int makeInitialGoal();
 		int makeRandomGoal();
 		int makeEnemyTerritoryGoal();
@@ -55,6 +56,7 @@ class Game : public sf::Drawable
 
 		//The following are functions that have been added to the game to facilitate pathing
 		int index(int x, int y);								//return the index for a pair of coords
+		list<int> AStarPath(int currentX, int currentY, int goalX, int goalY, int debugMode);
 		bool reverseIndex(int index, int *x, int *y);			//return the coords for an index
 		Position getPos(int x, int y);							//calculate an ingame position from a pair of coords
 		Position getPosFromIndex(int index);					//calculates an ingame position based on the index value
@@ -62,5 +64,32 @@ class Game : public sf::Drawable
 		int getNearestIndex(Position currentPos);				//get the closest node to the current position
 		list<int> planPathBFS(int goalNode);					//pathing based on a BFS system
 		list<int> planPathDFS(int goalNode);					//pathing based on a DFS system
+};
+
+class Nodes
+{
+public:
+	float f;
+	float g;
+	float h;
+
+	int index;
+	int parentIndex;
+	void Fscore(float parentGScore, int currentX, int currentY, int goalX, int goalY)
+	{
+		//working out the f score
+		float dx, dy;
+
+		g = parentGScore + 1.0f; //parent + 1
+		dx = (float)(goalX - currentX); //the x goal position minus the current x postion
+		dy = (float)(goalY - currentY); //the y goal position minus the current y postion
+		h = sqrt(dx * dx + dy * dy); //The Euclidean distance to the goal 
+		f = g + h;
+
+	}
+	bool operator<(const Nodes& other)
+	{
+		return f < other.f;
+	}
 };
 #endif

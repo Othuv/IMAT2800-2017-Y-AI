@@ -192,12 +192,11 @@ Game::Game() // Constructor
 
 	redScore = 0;
 	blueScore = 0;
-
-	test = planPathDFS(makeInitialGoal());
-	for (int i = 0; i < test.size(); i++)
+	lIPath = planPathBFS(makeInitialGoal());
+	for (int i = 0; i < lIPath.size(); i++)
 	{
-		aiPath.insert(aiPath.end(), getPosFromIndex(test.front()));
-		test.pop_front();
+		aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));
+		lIPath.pop_front();
 	}
 	npc.setPath(aiPath);
 	}
@@ -527,6 +526,17 @@ void Game::play()// Play the game for one timestep
 		if(player.canSee(it->bb)) it->setVisible();
 	}
 
+	if (npc.returnRequest())
+	{
+		lIPath = planPathDFS(chooseGoal());
+		for (int i = 0; i < lIPath.size(); i++)
+		{
+			aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));
+			lIPath.pop_front();
+		}
+		npc.setPath(aiPath);
+		npc.requestAcknowledged();
+	}
 }
 
 void Game::fireShell(Position fp, bool isNpc)
@@ -542,6 +552,7 @@ void Game::fireShell(Position fp, bool isNpc)
 		if(npc.canFire())		//check if it has ammo
 		{
 			npc.fireShell();	//fire 
+			npc.fired = true;
 			canFire = true;		//set can fire to true
 		}
    }
@@ -762,6 +773,115 @@ int Game::numRedBuildings() const
 	return redBuildings.size();
 }
 
+list<int> Game::AStarPath(int currentX, int currentY, int goalX, int goalY, int DebugMode)
+{
+	list<int> path;
+	list<Nodes> open;
+	list<Nodes> closed;
+
+	int goalIndex;
+	int currentIndex;
+	Nodes currentNode;
+
+	goalIndex = index(goalX, goalY);
+	currentIndex = index(currentX, currentY);
+
+	// Set the base of the index, Parent index and the score
+	currentNode.index = currentIndex;
+	currentNode.parentIndex = -1;
+	currentNode.Fscore(0.0, currentX, currentY, goalX, goalY);
+
+	open.push_back(currentNode);
+
+	while (currentIndex != goalIndex) // while the tank has not reached the goal (the current index is not equal to the goal index)
+	{
+		//sort through the list of possible nodes and then resort them by taking some off the list
+		// and set the new current index to proceed...
+		open.sort();
+
+		currentNode = open.front();
+		open.pop_front();
+		closed.push_back(currentNode);
+		currentIndex = currentNode.index;
+
+		//Look for connectiosn to other nodes
+		for (int otherIndex = 0; otherIndex < nNodes; otherIndex++)
+		{
+			if (adjacencyMatrix[currentIndex][otherIndex])
+			{
+				list<Nodes>::iterator graphListIter;
+				bool onClosed = false;
+				bool onOpen = false;
+
+				for (graphListIter = closed.begin(); graphListIter != closed.end(); ++graphListIter)
+				{
+					//check if its on the closed list
+					if ((*graphListIter).index == otherIndex)
+					{
+						// if it has been found on the closed list, check the current g value to the one...
+						// found on the closed list and then update the node
+						onClosed = true;
+						if (currentNode.g + 1.0 < (*graphListIter).g)
+						{
+							(*graphListIter).parentIndex = currentIndex;
+						}
+					}
+				}
+
+				if (!onClosed)
+				{
+					//check to see if its on the open list
+					for (graphListIter = open.begin(); graphListIter != open.end(); ++graphListIter)
+					{
+						if ((*graphListIter).index == otherIndex)
+						{
+							onOpen = true;
+							if (currentNode.g + 1.0 < (*graphListIter).g)
+							{
+								(*graphListIter).parentIndex = currentIndex;
+							}
+						}
+					}
+				}
+
+				if (!onClosed && !onOpen)
+				{
+					Nodes tmpNode; // not on open or the closed list...
+					tmpNode.parentIndex = currentIndex; // set the parent node to the present node
+					tmpNode.index = otherIndex; //set the node index to the other index
+					reverseIndex(otherIndex, &currentX, &currentY); //find the X and Y position of the node
+					tmpNode.Fscore(currentNode.g, currentX, currentY, goalX, goalY); //node score
+					open.push_back(tmpNode);// add to the open list
+				}
+			}
+		}
+	}
+
+	// Now that the goal/ shortest path has been found, work its way backwords from the goal...
+	//back to the first node
+	int parent;
+	list<Nodes>::iterator graphListIter;
+
+	//set up the new nodes & remove current node from the closed list
+	currentNode = closed.back();
+	parent = currentNode.parentIndex;
+	path.push_front(currentIndex);
+	closed.pop_back();
+
+	for (graphListIter = closed.end(), graphListIter--; graphListIter != closed.begin(); --graphListIter)
+	{
+		currentNode = *graphListIter;
+		if (currentNode.index == parent)
+		{
+			path.push_front(parent); // add to path
+			parent = currentNode.parentIndex; //new parent node
+			closed.erase(graphListIter); // remove from closed list
+			graphListIter = closed.end(); //work its way backward
+		}
+	}
+	return path;
+}
+
 int Game::index(int x, int y)
 {
 	return indexLookup[x - 1 ][y - 1];
@@ -913,26 +1033,40 @@ list<int> Game::planPathDFS(int goalNode)
 	}
 }
 
+int Game::chooseGoal()
+{
+	if (npc.getNumberOfShells() > 0)
+	{
+		return makeEnemyTerritoryGoal();
+	}
+
+	else
+	{
+		return makeRandomGoal();
+	}
+}
+
 int Game::makeInitialGoal()
 {
-	int dx = (float)(rand() % 10);
-	int dy = (float)(rand() % 30);
+	int dx = (float)(rand() % 10) + 1;
+	int dy = (float)(rand() % 30) + 1;
 
 	return index(dx, dy);
 }
 
 int Game::makeRandomGoal()
 {
-	int dx = (float)(rand() % posWidth);
-	int dy = (float)(rand() % posHeight);
+	int dx = (float)(rand() % posWidth)+1;
+	int dy = (float)(rand() % posHeight)+1;
 
 	return index(dx, dy);
 }
 
 int Game::makeEnemyTerritoryGoal()
 {
-	int dx = (float)(rand() % posWidth / 2);
-	int dy = (float)(rand() % posHeight);
+	int dx = (float)(rand() % posWidth / 2)+1;
+	int dy = (float)(rand() % posHeight)+1;
 
 	return index(dx, dy);
 }
+
