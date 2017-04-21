@@ -56,7 +56,7 @@ class Game : public sf::Drawable
 
 		//The following are functions that have been added to the game to facilitate pathing
 		int index(int x, int y);								//return the index for a pair of coords
-		list<int> AStarPath(int currentX, int currentY, int goalX, int goalY, int debugMode);
+		list<int> AStarPath(int goal);
 		bool reverseIndex(int index, int *x, int *y);			//return the coords for an index
 		Position getPos(int x, int y);							//calculate an ingame position from a pair of coords
 		Position getPosFromIndex(int index);					//calculates an ingame position based on the index value

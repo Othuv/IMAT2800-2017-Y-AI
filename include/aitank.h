@@ -15,7 +15,6 @@ class AITank : public Tank
 {
 protected:
 	bool visible;
-	int iSLogic = 0;
 	bool requestingPath = false;
 public:
 	bool returnRequest();
@@ -23,8 +22,8 @@ public:
 	bool aimed = false;
 	bool fired = true;
 	AITank(); //!< Empty construtor
-	std::list<Position> path;
-	Position target = Position(0,0);
+	std::list<Position> path;//!<the path to follow
+	Position target = Position(0,0);//!<the current target(Aims at 0,0 by default but the tank doesn't take long to find a new one)
 	void setVisible(){visible = true;} //!< Make the AI tank visible to the player
 	void setInvisible(){visible = false;} //!< Make the AI tank invisible to the player
 	bool isVisible()const {return visible;} //!< Is the tank visiable to the player?

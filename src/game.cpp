@@ -192,7 +192,7 @@ Game::Game() // Constructor
 
 	redScore = 0;
 	blueScore = 0;
-	lIPath = planPathBFS(makeInitialGoal());
+	lIPath = AStarPath(makeInitialGoal());
 	for (int i = 0; i < lIPath.size(); i++)
 	{
 		aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));
@@ -333,7 +333,6 @@ void Game::play()// Play the game for one timestep
 
 	// Move AI tank
 	npc.markPos();
-
 	npc.move();
 	npc.implementMove();
 	if(npc.isFiring()){fireShell(npc.firingPosition(), true);}
@@ -528,7 +527,7 @@ void Game::play()// Play the game for one timestep
 
 	if (npc.returnRequest())
 	{
-		lIPath = planPathDFS(chooseGoal());
+		lIPath = AStarPath(chooseGoal());
 		for (int i = 0; i < lIPath.size(); i++)
 		{
 			aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));
@@ -773,22 +772,25 @@ int Game::numRedBuildings() const
 	return redBuildings.size();
 }
 
-list<int> Game::AStarPath(int currentX, int currentY, int goalX, int goalY, int DebugMode)
+list<int> Game::AStarPath(int goal)
 {
 	list<int> path;
 	list<Nodes> open;
 	list<Nodes> closed;
 
-	int goalIndex;
-	int currentIndex;
+
+	int currentIndex = getNearestIndex(Position(npc.getX(), npc.getY()));;
+	int currentX, currentY;
 	Nodes currentNode;
 
-	goalIndex = index(goalX, goalY);
-	currentIndex = index(currentX, currentY);
+	int goalIndex = goal;
+	int goalX, goalY;
+	reverseIndex(goalIndex, &goalX, &goalY);
 
 	// Set the base of the index, Parent index and the score
 	currentNode.index = currentIndex;
 	currentNode.parentIndex = -1;
+	reverseIndex(currentIndex, &currentX, &currentY);
 	currentNode.Fscore(0.0, currentX, currentY, goalX, goalY);
 
 	open.push_back(currentNode);
