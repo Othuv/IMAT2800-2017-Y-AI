@@ -23,13 +23,13 @@ Game::Game() // Constructor
 	*/
 
 	// Allocate adjacency matrix
-	adjacencyMatrix.resize(nNodes);
-	for (int i = 0; i<nNodes; i++) {
+	adjacencyMatrix.resize(nNodes);				//resize the adjacency matrix based on the number of nodes
+	for (int i = 0; i<nNodes; i++) {			
 		adjacencyMatrix[i].resize(nNodes);
 	}
 
 	// Populate index lookup table
-	for (int i = 0; i<posWidth; i++) {
+	for (int i = 0; i<posWidth; i++) {			
 		for (int j = 0; j<posHeight; j++) {
 			indexLookup[i][j] = j * posWidth + i;
 		}
@@ -192,20 +192,22 @@ Game::Game() // Constructor
 
 	redScore = 0;
 	blueScore = 0;
-	lIPath = AStarPath(makeInitialGoal());
-	for (int i = 0; i < lIPath.size(); i++)
+
+	
+	lIPath = AStarPath(makeInitialGoal());								//Creates and intital path of index values
+	for (int i = 0; i < lIPath.size(); i++)								//goes through the path of index values and converts them to position values
 	{
-		aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));
+		aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));	
 		lIPath.pop_front();
 	}
-	npc.setPath(aiPath);
+	npc.setPath(aiPath);												//send the path to the npc
 	}
 
 Game::~Game(){}  // Destructor
 
 // Set a random Position which does not collide with anything
-	void Game::resetNpc()
-	{
+void Game::resetNpc()
+{
 	bool collision = true;
 	while(collision)
 	{
@@ -525,16 +527,17 @@ void Game::play()// Play the game for one timestep
 		if(player.canSee(it->bb)) it->setVisible();
 	}
 
-	if (npc.returnRequest())
+
+	if (npc.returnRequest())														//if the npc currently requires a new path
 	{
-		lIPath = AStarPath(chooseGoal());
-		for (int i = 0; i < lIPath.size(); i++)
+		lIPath = AStarPath(chooseGoal());											//calculate one based off of its current location and priority, if it's running away go anywhere, if not go into enemy territory
+		for (int i = 0; i < lIPath.size(); i++)										//go through the path of index values
 		{
-			aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));
+			aiPath.insert(aiPath.end(), getPosFromIndex(lIPath.front()));			//convert them into position values
 			lIPath.pop_front();
 		}
-		npc.setPath(aiPath);
-		npc.requestAcknowledged();
+		npc.setPath(aiPath);														//send the npc the new path 
+		npc.requestAcknowledged();													//set the npc to stop asking for a new one
 	}
 }
 
@@ -774,17 +777,16 @@ int Game::numRedBuildings() const
 
 list<int> Game::AStarPath(int goal)
 {
-	list<int> path;
-	list<Nodes> open;
-	list<Nodes> closed;
+	list<int> path;						//The path
+	list<Nodes> open;					//list of nodes that have been visited
+	list<Nodes> closed;					//list of nodes that haven't been visited
 
+	int currentIndex = getNearestIndex(Position(npc.getX(), npc.getY()));;		//set the current index to the closest point
+	int currentX, currentY;														//the x and y coords of the index
+	Nodes currentNode;															//the current node being used
 
-	int currentIndex = getNearestIndex(Position(npc.getX(), npc.getY()));;
-	int currentX, currentY;
-	Nodes currentNode;
-
-	int goalIndex = goal;
-	int goalX, goalY;
+	int goalIndex = goal;														//the index we want to reach
+	int goalX, goalY;															//that nodes x and y coords
 	reverseIndex(goalIndex, &goalX, &goalY);
 
 	// Set the base of the index, Parent index and the score
@@ -848,12 +850,12 @@ list<int> Game::AStarPath(int goal)
 
 				if (!onClosed && !onOpen)
 				{
-					Nodes tmpNode; // not on open or the closed list...
-					tmpNode.parentIndex = currentIndex; // set the parent node to the present node
-					tmpNode.index = otherIndex; //set the node index to the other index
-					reverseIndex(otherIndex, &currentX, &currentY); //find the X and Y position of the node
-					tmpNode.Fscore(currentNode.g, currentX, currentY, goalX, goalY); //node score
-					open.push_back(tmpNode);// add to the open list
+					Nodes tmpNode;														// not on open or the closed list...
+					tmpNode.parentIndex = currentIndex;									// set the parent node to the present node
+					tmpNode.index = otherIndex;											//set the node index to the other index
+					reverseIndex(otherIndex, &currentX, &currentY);						//find the X and Y position of the node
+					tmpNode.Fscore(currentNode.g, currentX, currentY, goalX, goalY);	//node score
+					open.push_back(tmpNode);											// add to the open list
 				}
 			}
 		}
@@ -875,25 +877,25 @@ list<int> Game::AStarPath(int goal)
 		currentNode = *graphListIter;
 		if (currentNode.index == parent)
 		{
-			path.push_front(parent); // add to path
-			parent = currentNode.parentIndex; //new parent node
-			closed.erase(graphListIter); // remove from closed list
-			graphListIter = closed.end(); //work its way backward
+			path.push_front(parent);					// add to path
+			parent = currentNode.parentIndex;			//new parent node
+			closed.erase(graphListIter);				// remove from closed list
+			graphListIter = closed.end();				//work its way backward
 		}
 	}
 	return path;
 }
 
-int Game::index(int x, int y)
+int Game::index(int x, int y)			//Takes an x and y coordinate and returns the index node number
 {
-	return indexLookup[x - 1 ][y - 1];
+	return indexLookup[x - 1 ][y - 1];	//Reduces x and y first as to not cause catastrphic vector errors
 }
 
 bool Game::reverseIndex(int index, int *x, int *y)
 {
-	if (index > nNodes) { return false; } //if the index is outside the number of nodes return false 
+	if (index > nNodes) { return false; }	//if the index is outside the number of nodes return false 
 
-	else //otherwise calculate the x y coords using this
+	else									//otherwise calculate the x y coords using this
 	{
 		*x = index % posWidth;
 		*y = index / posWidth;
@@ -901,34 +903,33 @@ bool Game::reverseIndex(int index, int *x, int *y)
 	}
 }
 
-Position Game::getPos(int x, int y)
+Position Game::getPos(int x, int y)				//Takes an x and y value and calculates its actual possition on the map
 {
-	return Position(20 * x + 40, 20 * y + 40); //calculate the position of a set of coords
+	return Position(20 * x + 40, 20 * y + 40);	//calculate the position of a set of coords
 }
 
-Position Game::getPosFromIndex(int index)
+Position Game::getPosFromIndex(int index)		//Takes an index and  calculates its actual possition on the map
 {
-	int x = index % posWidth;
-	int y = index / posWidth;
+	int x = index % posWidth;					//converts the index to x and y positions
+	int y = index / posWidth;					
 
-	return Position(20 * x + 40, 20 * y + 40);
+	return Position(20 * x + 40, 20 * y + 40);	//calculate the position of a set of coords
 }
 
 void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
 {
-	for (int i = 0; i < posHeight - 1; i++)
+	for (int i = 0; i < posHeight - 1; i++)										//For each node
 	{
 		for (int j = 0; j < posWidth - 1; j++)
 		{
-			Position currentPos = Game::getPos(i, j);
-			int currentIndex = index(i, j);
-			if (currentPos.getX() > dx && currentPos.getX() < dx + xVar)
+			Position currentPos = Game::getPos(i, j);							//calculate the nodes position
+			int currentIndex = index(i, j);										//calculate its index
+			if (currentPos.getX() > dx && currentPos.getX() < dx + xVar)		//check if it lies within the blocks x coords
 			{
-				if (currentPos.getY() > dy && currentPos.getY() < dx + yVar)
+				if (currentPos.getY() > dy && currentPos.getY() < dx + yVar)	//check if it lies within the blocks y coords
 				{
-					for (int k = 0; k < nNodes - 1; k++)
+					for (int k = 0; k < nNodes - 1; k++)						//make sure the node is seen as inaccessable
 					{
-
 						adjacencyMatrix[k][currentIndex] = 0;
 						adjacencyMatrix[currentIndex][k] = 0;
 					}
@@ -940,31 +941,31 @@ void Game::buildingAdj(int dx, int dy, int yVar, int xVar)
 
 int Game::getNearestIndex(Position currentPos)
 {
-	float currentMinDist = 1000;
-	int currentMinNode = 0;
-	for (int i = 0; i < posHeight - 1; i++)
+	float currentMinDist = 1000;												//Large number initialized in order to prevent errors
+	int currentMinNode = 0;														//arbitrary, needs to be initialized to prevent errors
+	for (int i = 0; i < posHeight - 1; i++)										//loop through each node
 	{
 		for (int j = 0; j < posWidth - 1; j++)
 		{
-			Position nodePos = Game::getPos(i, j);
+			Position nodePos = Game::getPos(i, j);								//calculate the nodes possition
 			
-			float diffX = (currentPos.getX() - nodePos.getX());
-			float diffY = (currentPos.getY() - nodePos.getY());
-			float currentDist = (diffY * diffY) + (diffX * diffX);
+			float diffX = (currentPos.getX() - nodePos.getX());					//calculate the difference in x
+			float diffY = (currentPos.getY() - nodePos.getY());					//calculate the difference in y
+			float currentDist = (diffY * diffY) + (diffX * diffX);				//calculate the distance between the npc and the node
 
-			if (currentDist < currentMinDist) currentMinNode = index(i, j);
+			if (currentDist < currentMinDist) currentMinNode = index(i, j);		//check if it is closer than the current closest node, if so, replace it
 		}
 	}
-	return currentMinNode;
+	return currentMinNode;														//returns the node closest to the npc, this will be treated as the players position when path finding
 }
 
 list<int> Game::planPathBFS(int goalNode)
 {
-	int currentNode = getNearestIndex(Position(npc.getX(), npc.getY()));
+	int currentNode = getNearestIndex(Position(npc.getX(), npc.getY()));		//treat the node closest to the npc as its current node
 
-	list<int> path; // Final path to be constructed
-	bool visited[nNodes]; // Has the node been visit
-	list<list<int>> nodeQueue; // Queue of nodes, implemented using a list
+	list<int> path;								// Final path to be constructed
+	bool visited[nNodes];						// Has the node been visit
+	list<list<int>> nodeQueue;					// Queue of nodes, implemented using a list
 
 	for (int i = 0; i<nNodes; i++) visited[i] = false;
 
@@ -1001,9 +1002,9 @@ list<int> Game::planPathDFS(int goalNode)
 {
 	int currentNode = getNearestIndex(Position(npc.getX(), npc.getY()));
 
-	list<int> path; // Final path to be constructed
-	bool visited[nNodes]; // Has the node been visit
-	list<list<int>> nodeQueue; // Queue of nodes, implemented using a list
+	list<int> path;								// Final path to be constructed
+	bool visited[nNodes];						// Has the node been visit
+	list<list<int>> nodeQueue;					// Queue of nodes, implemented using a list
 
 	for (int i = 0; i<nNodes; i++) visited[i] = false;
 
@@ -1028,47 +1029,47 @@ list<int> Game::planPathDFS(int goalNode)
 				if (i == goalNode)
 				{
 					path.pop_front();
-					return path;	//if the node is the one we want to reach, return the current path
+					return path;				//if the node is the one we want to reach, return the current path
 				}
 			}
 		}
 	}
 }
 
-int Game::chooseGoal()
+int Game::chooseGoal()							//determines the goal node based on the current number of shells the npc can fire
 {
-	if (npc.getNumberOfShells() > 0)
+	if (npc.getNumberOfShells() > 0)			//checks if there are any shells left
 	{
-		return makeEnemyTerritoryGoal();
+		return makeEnemyTerritoryGoal();		//Select a new a goal node in enemy territory
 	}
 
-	else
+	else										//If there are no shells left
 	{
-		return makeRandomGoal();
+		return makeRandomGoal();				//Make a goal anywhere, to try and run away
 	}
 }
 
-int Game::makeInitialGoal()
+int Game::makeInitialGoal()						//Makes a goal node in the upper left of the map
 {
-	int dx = (float)(rand() % 10) + 1;
-	int dy = (float)(rand() % 30) + 1;
+	int dx = (float)(rand() % 10) + 1;			//Randomize the x between 1 and 10
+	int dy = (float)(rand() % 30) + 1;			//Randomize the y between 1 and 30
 
-	return index(dx, dy);
+	return index(dx, dy);						//Calculate the index of the point
 }
 
-int Game::makeRandomGoal()
+int Game::makeRandomGoal()						//Makes an entirely random goal node
 {
-	int dx = (float)(rand() % posWidth)+1;
-	int dy = (float)(rand() % posHeight)+1;
+	int dx = (float)(rand() % posWidth)+1;		//Randomizes between 1 and posWidth
+	int dy = (float)(rand() % posHeight)+1;		//Randomizes between 1 and posHeight
 
-	return index(dx, dy);
+	return index(dx, dy);						//Calculate the index of the point
 }
 
-int Game::makeEnemyTerritoryGoal()
+int Game::makeEnemyTerritoryGoal()				//Makes a goal node in enemy territory
 {
-	int dx = (float)(rand() % posWidth / 2)+1;
-	int dy = (float)(rand() % posHeight)+1;
+	int dx = (float)(rand() % posWidth / 2)+1;	//Randomizes between 1 and half of the posWidth
+	int dy = (float)(rand() % posHeight)+1;		//Randomizes between 1 and posHeight
 
-	return index(dx, dy);
+	return index(dx, dy);						//Calculate the index of the point
 }
 
